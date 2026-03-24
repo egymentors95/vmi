@@ -1,5 +1,87 @@
 <odoo>
     <data>
+        <template id="invoice_header_and_footer">
+            <t t-if="not o" t-set="o" t-value="doc"/>
+            <t t-set="company"
+               t-value="o.company_id"/>
+
+            <div t-attf-class="header o_company_#{company.id}_layout" t-att-style="report_header_style">
+
+                <table class="table table-sm"
+                       style="border: none !important; width: 100%; margin-bottom: 0; font-size: 12px;">
+                    <body>
+                        <tr>
+                            <td style="text-align:left; border: none !important; width: 40%; line-height: 1.4;">
+                                <div t-esc="company.name" style="color: blue; font-size: 16px;"/>
+                                <div>
+                                    <span t-esc="company.street"/>
+                                    <span t-esc="company.street2"/>
+                                    <span t-esc="company.city"/>
+                                </div>
+                                <div>
+                                    <span style="color: red;">CR:</span>
+                                    <span t-esc="company.company_registry"/>
+                                </div>
+                                <div>
+                                    <span style="color: red;">VAT:</span>
+                                    <span t-esc="company.vat"/>
+                                </div>
+                            </td>
+                            <td style="text-align:center; border: none !important; width: 20%;">
+                                <div>
+                                    <img t-if="company.logo"
+                                         t-att-src="'data:image/png;base64,%s' % (company.sudo().logo.decode('utf-8') if isinstance(company.sudo().logo, bytes) else company.sudo().logo)"
+                                         style="max-height:60px; max-width:200px;"/>
+                                </div>
+                            </td>
+                            <td style="text-align:right; border: none !important; width: 40%; line-height: 1.4;">
+                                <div>
+                                    <span style="color: blue; font-size: 16px;" t-esc="company.arabic_name"/>
+                                </div>
+                                <div>
+                                    <span t-esc="company.arabic_street"/>
+                                    <span t-esc="company.arabic_street2"/>
+                                    <span t-esc="company.arabic_city"/>
+                                </div>
+                                <div>
+                                    <span style="color: red;">السجل التجاري:</span>
+                                    <span t-esc="company.company_registry"/>
+                                </div>
+                                <div>
+                                    <span style="color: red;">الرقم الضريبي:</span>
+                                    <span t-esc="company.vat"/>
+                                </div>
+
+
+                            </td>
+                        </tr>
+                    </body>
+
+                </table>
+            </div>
+
+            <div t-attf-class="article o_report_layout_standard o_company_#{company.id}_layout {{  'o_layout_background' if company.layout_background in ['Geometric', 'Custom']  else  '' }}"
+                 t-attf-style="background-image: url({{ 'data:image/png;base64,%s' % company.layout_background_image.decode('utf-8') if company.layout_background_image and company.layout_background == 'Custom' else '/base/static/img/bg_background_template.jpg' if company.layout_background == 'Geometric' else ''}});"
+                 t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id"
+                 t-att-data-oe-lang="o and o.env.context.get('lang')">
+                <t t-out="0"/>
+            </div>
+            <div class="footer o_standard_footer" style="padding-top: 10px;">
+                <div class="text-center">
+                    <img t-att-src="'/custom_invoice_v2/static/img/footer_1.png'"
+                         style="max-width: 100%; height: auto;" alt="Footer Image"/>
+                </div>
+                <!--                <div class="text-muted" t-if="report_type == 'pdf'" style="font-size: 10px; margin-top: 5px;">-->
+                <!--                    Page:-->
+                <!--                    <span class="page"/>-->
+                <!--                    /-->
+                <!--                    <span class="topage"/>-->
+                <!--                </div>-->
+            </div>
+
+        </template>
+
+
         <template id="custom_invoice_report">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="o">
@@ -28,29 +110,27 @@
                             color: black;
                             }
                         </style>
-                        <!--                        <br/>-->
-                        <!--                        <br/>-->
                         <div class="page" dir="ltr">
-                            <div class="row" dir="ltr">
-                                <div class="col-4 text-left">
-                                    <h6 t-if="o.invoice_date">
-                                        <span>Invoice Date :</span>
-                                        <!-- <span t-field="o.invoice_date"/> -->
-                                        <span t-esc="o.invoice_date.strftime('%d/%m/%Y')"/>
-                                    </h6>
-                                </div>
+                            <div style="text-align:center; font-size: 16px !important; font-weight: bold; color: blue;">
+                                <strong t-if="o.move_type in ['out_invoice', 'in_invoice']">فاتورة ضريبية
+                                </strong>
+                                <strong t-elif="o.move_type in ['out_refund', 'in_refund']">إشعار دائن
+                                </strong>
+                                -
+                                <strong t-if="o.move_type in ['out_invoice', 'in_invoice']">VAT Invoice</strong>
+                                <strong t-elif="o.move_type in ['out_refund', 'in_refund']">Credit Note
+                                </strong>
+                            </div>
 
+                            <div class="row" dir="ltr">
+
+                                <div class="col-4 text-left">
+                                    <h4 t-if="o.invoice_date">
+                                        <span>Invoice Date :</span>
+                                        <span t-esc="o.invoice_date.strftime('%d/%m/%Y')"/>
+                                    </h4>
+                                </div>
                                 <div class="col-4 text-center">
-                                    <h6 dir="rtl">
-                                        <strong t-if="o.move_type in ['out_invoice', 'in_invoice']">فاتورة ضريبية
-                                        </strong>
-                                        <strong t-elif="o.move_type in ['out_refund', 'in_refund']">إشعار دائن
-                                        </strong>
-                                        -
-                                        <strong t-if="o.move_type in ['out_invoice', 'in_invoice']">VAT Invoice</strong>
-                                        <strong t-elif="o.move_type in ['out_refund', 'in_refund']">Credit Note
-                                        </strong>
-                                    </h6>
                                 </div>
                                 <div class="col-4 text-right" dir="rtl">
                                     <div t-if="o.name">
@@ -183,21 +263,15 @@
                                 </div>
                             </div>
 
-
                             <br/>
-                            <table class="table table-sm"
-                                   style="font-size: 13px !important; border-radius: 30px !important;" dir="rtl">
+                            <table class="table" style="width:100%;  font-size: 13px !important; text-align: center;"
+                                   dir="rtl">
                                 <thead style="font-weight: 700;">
                                     <tr>
                                         <th class="text-center">
-                                            <span style="font-weight: 700;">الخدمات</span>
+                                            <span style="font-weight: 700;">الوصف</span>
                                             <br/>
-                                            <span style="font-weight: 700;">Services</span>
-                                        </th>
-                                        <th class="text-center">
-                                            <span style="font-weight: 700;">مدة الخدمة</span>
-                                            <br/>
-                                            <span style="font-weight: 700;">Duration of service</span>
+                                            <span style="font-weight: 700;">Description</span>
                                         </th>
                                         <th class="text-center">
                                             <span style="font-weight: 700;">الكمية</span>
@@ -244,15 +318,15 @@
                                         <t t-set="row_class" t-value="'babyblue' if row_index % 2 == 1 else 'white'"/>
                                         <t t-set="current_subtotal" t-value="current_subtotal + line.price_total"/>
 
-                                      <tr t-attf-class="#{row_class} #{'text-center' if line.display_type not in ('line_section', 'line_note') else ''} #{'bg-200 fw-bold o_line_section' if line.display_type == 'line_section' else 'fst-italic o_line_note' if line.display_type == 'line_note' else ''}">
+                                        <tr t-attf-class="#{row_class} #{'text-center' if line.display_type not in ('line_section', 'line_note') else ''} #{'bg-200 fw-bold o_line_section' if line.display_type == 'line_section' else 'fst-italic o_line_note' if line.display_type == 'line_note' else ''}">
                                             <t t-if="line.display_type not in ('line_note', 'line_section')"
                                                name="account_invoice_line_accountable">
                                                 <td>
                                                     <span t-field="line.product_id.name"/>
                                                 </td>
-                                                <td>
-                                                    <span t-field="line.employee_time_sheet"/>
-                                                </td>
+                                                <!--                                                <td>-->
+                                                <!--                                                    <span t-field="line.employee_time_sheet"/>-->
+                                                <!--                                                </td>-->
                                                 <td>
                                                     <span t-field="line.quantity"/>
                                                     <span t-field="line.product_uom_id" groups="uom.group_uom"/>
@@ -261,7 +335,7 @@
                                                     <span class="text-nowrap" t-esc="'%.2f' % line.price_unit"/>
                                                 </td>
                                                 <td>
-                                                    <span class="text-nowrap" t-field="line.price_discount"/>
+                                                    <t t-esc="line.price_unit * line.quantity * line.discount / 100"/>
                                                 </td>
                                                 <td>
                                                     <span class="text-nowrap" t-field="line.price_subtotal"/>
@@ -321,7 +395,7 @@
                                                 <span style="font-weight: 700;">اجمالي الخصومات</span>
                                             </td>
                                             <td dir="ltr">
-                                                <span t-field="o.amount_discount"/>
+                                                <span t-field="o.total_discount"/>
                                             </td>
                                             <td>
                                                 <span style="font-weight: 700;">Discount</span>
@@ -409,113 +483,6 @@
 
 
         <!--        Invoice Header & Footer-->
-        <template id="invoice_header_and_footer">
-            <t t-if="not o" t-set="o" t-value="doc"/>
-            <t t-if="not company">
-                <!-- Multicompany -->
-                <t t-if="company_id">
-                    <t t-set="company" t-value="company_id"/>
-                </t>
-                <t t-elif="o and 'company_id' in o and o.company_id.sudo()">
-                    <t t-set="company" t-value="o.company_id.sudo()"/>
-                </t>
-                <t t-else="else">
-                    <t t-set="company" t-value="res_company"/>
-                </t>
-            </t>
-
-            <div t-attf-class="header o_company_#{company.id}_layout" t-att-style="report_header_style">
-                <style>
-                    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&amp;display=swap');
-
-                    * { font-family: 'Cairo', sans-serif !important; }
-                </style>
-
-                <div class="row" dir="ltr"
-                     style="border-bottom: 2px solid grey !important; display: flex; justify-content: space-between; align-items: center;">
-
-                    <!-- Replace logo with static image -->
-                    <div class="col-12" style="text-align: center !important;">
-                        <img t-att-src="'/custom_invoice_v2/static/img/header_1.png'"
-                             style="width: 100%; height: auto;"
-                             alt="Company Header"/>
-
-                        <table class="totals_table_customer"
-                               style="width: 100%; border-style: hidden !important;" dir="rtl">
-                            <!-- VAT Number Row -->
-                            <tr>
-                                <td dir="ltr" style="border: none !important; text-align: right;">
-                                    <strong>
-                                        <span>الرقم الضريبي</span>
-                                    </strong>
-                                </td>
-                                <td dir="ltr" style="text-align: center; border: none !important;">
-                                    <span t-field="company.vat"/>
-                                </td>
-                                <!--                                <td style="text-align: left; border: none !important;">-->
-                                <!--                                    <strong>-->
-                                <!--                                        <span>VAT Number</span>-->
-                                <!--                                    </strong>-->
-                                <!--                                </td>-->
-                                <td dir="rtl" style="border: none !important; text-align: right;">
-                                    <strong>
-                                        <span>رقم السجل التجاري</span>
-                                    </strong>
-                                </td>
-                                <td dir="rtl" style="text-align: left; border: none !important;">
-                                    <span t-field="company.company_registry"/>
-                                </td>
-                                <!--                                <td style="text-align: left; border: none !important;">-->
-                                <!--                                    <strong>-->
-                                <!--                                        <span>CR Number</span>-->
-                                <!--                                    </strong>-->
-                                <!--                                </td>-->
-                            </tr>
-
-                            <!--                            &lt;!&ndash; CR Number Row &ndash;&gt;-->
-                            <!--                            <tr>-->
-                            <!--                                <td dir="rtl" style="border: none !important; text-align: right;">-->
-                            <!--                                    <strong>-->
-                            <!--                                        <span>رقم السجل التجاري</span>-->
-                            <!--                                    </strong>-->
-                            <!--                                </td>-->
-                            <!--                                <td dir="rtl" style="text-align: center; border: none !important;">-->
-                            <!--                                    <span t-field="company.company_registry"/>-->
-                            <!--                                </td>-->
-                            <!--                                <td style="text-align: left; border: none !important;">-->
-                            <!--                                    <strong>-->
-                            <!--                                        <span>CR Number</span>-->
-                            <!--                                    </strong>-->
-                            <!--                                </td>-->
-                            <!--                            </tr>-->
-                        </table>
-
-
-                    </div>
-
-                </div>
-            </div>
-
-            <div t-attf-class="article o_report_layout_standard o_company_#{company.id}_layout {{  'o_layout_background' if company.layout_background in ['Geometric', 'Custom']  else  '' }}"
-                 t-attf-style="background-image: url({{ 'data:image/png;base64,%s' % company.layout_background_image.decode('utf-8') if company.layout_background_image and company.layout_background == 'Custom' else '/base/static/img/bg_background_template.jpg' if company.layout_background == 'Geometric' else ''}});"
-                 t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id"
-                 t-att-data-oe-lang="o and o.env.context.get('lang')">
-                <t t-out="0"/>
-            </div>
-            <div class="footer o_standard_footer" style="padding-top: 10px;">
-                <div class="text-center">
-                    <img t-att-src="'/custom_invoice_v2/static/img/footer_1.png'"
-                         style="max-width: 100%; height: auto;" alt="Footer Image"/>
-                </div>
-                <!--                <div class="text-muted" t-if="report_type == 'pdf'" style="font-size: 10px; margin-top: 5px;">-->
-                <!--                    Page:-->
-                <!--                    <span class="page"/>-->
-                <!--                    /-->
-                <!--                    <span class="topage"/>-->
-                <!--                </div>-->
-            </div>
-
-        </template>
 
     </data>
 </odoo>
