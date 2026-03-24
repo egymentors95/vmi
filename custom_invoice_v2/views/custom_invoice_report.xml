@@ -12,7 +12,7 @@
                     <body>
                         <tr>
                             <td style="text-align:left; border: white !important; width: 40%; line-height: 1.4;">
-                                <div t-esc="company.name" style="color: blue; font-size: 16px;"/>
+                                <div t-esc="company.name" style="color: blue; font-size: 15px;"/>
                                 <div>
                                     <span t-esc="company.street"/>
                                     <span t-esc="company.street2"/>
@@ -36,7 +36,7 @@
                             </td>
                             <td style="text-align:right; border: white !important; width: 40%; line-height: 1.4;">
                                 <div>
-                                    <span style="color: blue; font-size: 16px;" t-esc="company.arabic_name"/>
+                                    <span style="color: blue; font-size: 15px;" t-esc="company.arabic_name"/>
                                 </div>
                                 <div>
                                     <span t-esc="company.arabic_street"/>
@@ -332,7 +332,8 @@
                                                     <span t-field="line.product_uom_id" groups="uom.group_uom"/>
                                                 </td>
                                                 <td>
-                                                    <span class="text-nowrap" t-esc="'%.2f' % line.price_unit"/>
+                                                    <span class="text-nowrap"
+                                                    t-esc="'{:,.2f}'.format(line.price_unit)"/>
                                                 </td>
                                                 <td>
                                                     <t t-esc="line.price_unit * line.quantity * line.discount / 100"/>
@@ -343,10 +344,11 @@
 
                                                 <td>
                                                     <span class="text-nowrap"
-                                                          t-esc="'%.2f' % line.l10n_gcc_invoice_tax_amount"/>
+                                                          t-esc="'{:,.2f}'.format(line.l10n_gcc_invoice_tax_amount)"/>
                                                 </td>
                                                 <td class="o_price_total">
-                                                    <span class="text-nowrap" t-field="line.price_total"/>
+                                                    <span class="text-nowrap"
+                                                          t-field="line.price_total"/>
                                                 </td>
                                             </t>
 
