@@ -7,11 +7,11 @@
 
             <div t-attf-class="header o_company_#{company.id}_layout" t-att-style="report_header_style">
 
-                <table class="table table-sm"
+                <table class="table"
                        style="border: none !important; width: 100%; margin-bottom: 0; font-size: 12px;">
                     <body>
                         <tr>
-                            <td style="text-align:left; border: none !important; width: 40%; line-height: 1.4;">
+                            <td style="text-align:left; border: white !important; width: 40%; line-height: 1.4;">
                                 <div t-esc="company.name" style="color: blue; font-size: 16px;"/>
                                 <div>
                                     <span t-esc="company.street"/>
@@ -27,14 +27,14 @@
                                     <span t-esc="company.vat"/>
                                 </div>
                             </td>
-                            <td style="text-align:center; border: none !important; width: 20%;">
+                            <td style="text-align:center; border: white !important; width: 20%;">
                                 <div>
                                     <img t-if="company.logo"
                                          t-att-src="'data:image/png;base64,%s' % (company.sudo().logo.decode('utf-8') if isinstance(company.sudo().logo, bytes) else company.sudo().logo)"
-                                         style="max-height:60px; max-width:200px;"/>
+                                         style="max-height:100px; max-width:300px;"/>
                                 </div>
                             </td>
-                            <td style="text-align:right; border: none !important; width: 40%; line-height: 1.4;">
+                            <td style="text-align:right; border: white !important; width: 40%; line-height: 1.4;">
                                 <div>
                                     <span style="color: blue; font-size: 16px;" t-esc="company.arabic_name"/>
                                 </div>
